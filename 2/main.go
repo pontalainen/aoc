@@ -78,16 +78,12 @@ func secondHalf() {
 	intLines := readInput()
 	safeLineCount := 0
 
-	unsafeLines := [][]int{}
 	for _, line := range intLines {
 		if checkLine(line) {
 			safeLineCount++
-		} else {
-			unsafeLines = append(unsafeLines, line)
+			continue
 		}
-	}
 
-	for _, line := range unsafeLines {
 		for i := 0; i < len(line); i++ {
 			changedLine := make([]int, len(line)-1)
 			copy(changedLine, line[:i])
@@ -99,5 +95,6 @@ func secondHalf() {
 			}
 		}
 	}
+
 	fmt.Println(safeLineCount)
 }
