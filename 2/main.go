@@ -12,6 +12,7 @@ import (
 
 func main() {
 	firstHalf()
+	secondHalf()
 }
 
 func readInput() [][]int {
@@ -35,37 +36,67 @@ func readInput() [][]int {
 	return intLines
 }
 
+func checkLine(line []int) bool {
+	ascLine := make([]int, len(line))
+	descLine := make([]int, len(line))
+	copy(ascLine, line)
+	copy(descLine, line)
+	sort.Ints(ascLine)
+	sort.Sort(sort.Reverse(sort.IntSlice(descLine)))
+
+	if !reflect.DeepEqual(ascLine, line) && !reflect.DeepEqual(descLine, line) {
+		return false
+	}
+
+	for i := 0; i < len(line); i++ {
+		if i == len(line)-1 {
+			break
+		}
+
+		diff := int(math.Abs(float64(line[i] - line[i+1])))
+		if diff > 3 || diff == 0 {
+			return false
+		}
+	}
+
+	return true
+}
+
 func firstHalf() {
 	intLines := readInput()
 	safeLineCount := 0
 
 	for _, line := range intLines {
-		safe := true
-
-		ascLine := make([]int, len(line))
-		descLine := make([]int, len(line))
-		copy(ascLine, line)
-		copy(descLine, line)
-		sort.Ints(ascLine)
-		sort.Sort(sort.Reverse(sort.IntSlice(descLine)))
-
-		if !reflect.DeepEqual(ascLine, line) && !reflect.DeepEqual(descLine, line) {
-			safe = false
+		if checkLine(line) {
+			safeLineCount++
 		}
+	}
+	fmt.Println(safeLineCount)
+}
 
+func secondHalf() {
+	intLines := readInput()
+	safeLineCount := 0
+
+	unsafeLines := [][]int{}
+	for _, line := range intLines {
+		if checkLine(line) {
+			safeLineCount++
+		} else {
+			unsafeLines = append(unsafeLines, line)
+		}
+	}
+
+	for _, line := range unsafeLines {
 		for i := 0; i < len(line); i++ {
-			if i == len(line)-1 {
+			changedLine := make([]int, len(line)-1)
+			copy(changedLine, line[:i])
+			copy(changedLine[i:], line[i+1:])
+			
+			if checkLine(changedLine) {
+				safeLineCount++
 				break
 			}
-
-			diff := int(math.Abs(float64(line[i] - line[i+1])))
-			if diff > 3 || diff == 0 {
-				safe = false
-			}
-		}
-
-		if safe {
-			safeLineCount++
 		}
 	}
 	fmt.Println(safeLineCount)
