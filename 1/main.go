@@ -14,10 +14,10 @@ func main() {
 	secondHalf()
 }
 
-func readInput() ([][]int) {
+func readInput() ([]int, []int) {
 	content, err := os.ReadFile("input")
 	if err != nil {
-		return [][]int{}
+		return nil, nil
 	}
 	lines := strings.Split(string(content), "\n")
 
@@ -35,16 +35,16 @@ func readInput() ([][]int) {
 	sort.Ints(leftSide)
 	sort.Ints(rightSide)
 
+	return leftSide, rightSide
+}
+
+func firstHalf() {
+	leftSide, rightSide := readInput()
+
 	sorted := [][]int{}
 	for i := 0; i < len(leftSide); i++ {
 		sorted = append(sorted, []int{leftSide[i], rightSide[i]})
 	}
-
-	return sorted
-}
-
-func firstHalf() {
-	sorted := readInput()
 
 	distances := []int{}
 	for _, pair := range sorted {
@@ -61,7 +61,20 @@ func firstHalf() {
 }
 
 func secondHalf() {
-	sorted := readInput()
+	leftSide, rightSide := readInput()
+	sum := 0
+	for _, left := range leftSide {
+		showCount := 0
+		for _, right := range rightSide {
+			if left == right {
+				showCount++
+			}
+			if left > right {
+				continue
+			}
+		}
+		sum += showCount * left
+	}
 
-	fmt.Println(sorted)
+	fmt.Println(sum)
 }
