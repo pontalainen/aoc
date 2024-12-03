@@ -16,7 +16,7 @@ func main() {
 }
 
 func readInput() [][]int {
-	content, err := os.ReadFile("input")
+	content, err := os.ReadFile("input.txt")
 	if err != nil {
 		return nil
 	}

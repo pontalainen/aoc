@@ -15,7 +15,7 @@ func main() {
 }
 
 func readInput() ([]int, []int) {
-	content, err := os.ReadFile("input")
+	content, err := os.ReadFile("input.txt")
 	if err != nil {
 		return nil, nil
 	}
@@ -63,14 +63,15 @@ func firstHalf() {
 func secondHalf() {
 	leftSide, rightSide := readInput()
 	sum := 0
+
 	for _, left := range leftSide {
 		showCount := 0
 		for _, right := range rightSide {
+			if right > left {
+				break
+			}
 			if left == right {
 				showCount++
-			}
-			if left > right {
-				continue
 			}
 		}
 		sum += showCount * left
