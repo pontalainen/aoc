@@ -68,6 +68,7 @@ func secondHalf() {
 		showCount := 0
 		for _, right := range rightSide {
 			if right > left {
+				// rightSide is sorted, so no need to check further
 				break
 			}
 			if left == right {
