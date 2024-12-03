@@ -54,25 +54,27 @@ func secondHalf() {
 	
 	muls := re.FindAllString(input, -1)
 	mulParts := re.Split(input, -1)
-	combo := make([][]string, len(mulParts)-1)
+	combo := make([][]string, len(mulParts)-1) // Last one will not contain any mul()
 
 	for i, mulPart := range mulParts {
 		if i == len(combo) {
+			// Last one will not contain any mul()
 			break
 		}
 		combo[i] = []string{mulPart, muls[i]}
 	}
 
 	sum := 0
-	do := true
+	shouldDo := true
 	for _, c := range combo {
-		instRe := regexp.MustCompile(`do\(\)|don't\(\)`)
-		instructions := instRe.FindAllString(c[0], -1)
+		re := regexp.MustCompile(`do\(\)|don't\(\)`)
+		instructions := re.FindAllString(c[0], -1)
 		if len(instructions) > 0 {
-			do = instructions[len(instructions)-1] == "do()"
+			// Last instruction will decide if do or don't
+			shouldDo = instructions[len(instructions)-1] == "do()"
 		}
 
-		if !do {
+		if !shouldDo {
 			continue
 		}
 
