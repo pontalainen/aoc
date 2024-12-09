@@ -24,7 +24,7 @@ func readInput() string {
 
 func firstHalf(input string) {
 	dottedSlice := getDottedSlice(input)
-	leftedSlice := getLeftedSlice(dottedSlice)
+	leftedSlice := getFragmentedSlice(dottedSlice)
 	checkSum := getCheckSum(leftedSlice)
 
 	fmt.Println(checkSum)
@@ -52,7 +52,7 @@ func getDottedSlice(input string) []string {
 	return dottedSlice
 }
 
-func getLeftedSlice(dottedSlice []string) []int {
+func getFragmentedSlice(dottedSlice []string) []int {
 	nonDottedSlice := []string{}
 	for _, idChar := range dottedSlice {
 		if idChar == "." {
@@ -87,4 +87,40 @@ func getCheckSum(leftedSlice []int) int {
 	}
 
 	return sum
+}
+
+func secondHalf(input string) {
+	dottedSlice := getDottedSlice(input)
+	leftedSlice := getFragmentedSlice(dottedSlice)
+	checkSum := getCheckSum(leftedSlice)
+
+	fmt.Println(checkSum)
+}
+
+func getCompactedSlice(dottedSlice []string) []int {
+	//! Just copied function, not altered
+	nonDottedSlice := []string{}
+	for _, idChar := range dottedSlice {
+		if idChar == "." {
+			continue
+		}
+		nonDottedSlice = append(nonDottedSlice, idChar)
+	}
+
+	leftedSlice := []int{}
+	secondIdx := len(nonDottedSlice) - 1
+	for i, idChar := range dottedSlice {
+		if i == len(nonDottedSlice) {
+			break
+		}
+		if idChar == "." {
+			intValue, _ := strconv.Atoi(nonDottedSlice[secondIdx])
+			leftedSlice = append(leftedSlice, intValue)
+			secondIdx--
+		} else {
+			intValue, _ := strconv.Atoi(idChar)
+			leftedSlice = append(leftedSlice, intValue)
+		}
+	}
+	return leftedSlice
 }
