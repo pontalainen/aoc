@@ -9,8 +9,8 @@ import (
 func main() {
 	input := readInput()
 
-	firstHalf(input)
-	// secondHalf(input)
+	// firstHalf(input)
+	secondHalf(input)
 }
 
 func readInput() string {
@@ -24,8 +24,8 @@ func readInput() string {
 
 func firstHalf(input string) {
 	dottedSlice := getDottedSlice(input)
-	leftedSlice := getFragmentedSlice(dottedSlice)
-	checkSum := getCheckSum(leftedSlice)
+	fragmentedSlice := getFragmentedSlice(dottedSlice)
+	checkSum := getCheckSum(fragmentedSlice)
 
 	fmt.Println(checkSum)
 }
@@ -35,6 +35,11 @@ func getDottedSlice(input string) []string {
 	isFileblock := true
 	idx := 0
 	for _, char := range input {
+		if char == '0' {
+			isFileblock = !isFileblock
+			continue
+		}
+
 		valueType := "."
 		if isFileblock {
 			valueType = strconv.Itoa(idx)
@@ -61,7 +66,7 @@ func getFragmentedSlice(dottedSlice []string) []int {
 		nonDottedSlice = append(nonDottedSlice, idChar)
 	}
 
-	leftedSlice := []int{}
+	fragmented := []int{}
 	secondIdx := len(nonDottedSlice) - 1
 	for i, idChar := range dottedSlice {
 		if i == len(nonDottedSlice) {
@@ -69,20 +74,20 @@ func getFragmentedSlice(dottedSlice []string) []int {
 		}
 		if idChar == "." {
 			intValue, _ := strconv.Atoi(nonDottedSlice[secondIdx])
-			leftedSlice = append(leftedSlice, intValue)
+			fragmented = append(fragmented, intValue)
 			secondIdx--
 		} else {
 			intValue, _ := strconv.Atoi(idChar)
-			leftedSlice = append(leftedSlice, intValue)
+			fragmented = append(fragmented, intValue)
 		}
 	}
-	return leftedSlice
+	return fragmented
 }
 
-func getCheckSum(leftedSlice []int) int {
+func getCheckSum(finalSlice []int) int {
 	sum := 0
-	for i := 0; i < len(leftedSlice); i++ {
-		placeInt := leftedSlice[i]
+	for i := 0; i < len(finalSlice); i++ {
+		placeInt := finalSlice[i]
 		sum += placeInt * i
 	}
 
@@ -90,37 +95,84 @@ func getCheckSum(leftedSlice []int) int {
 }
 
 func secondHalf(input string) {
-	dottedSlice := getDottedSlice(input)
-	leftedSlice := getFragmentedSlice(dottedSlice)
-	checkSum := getCheckSum(leftedSlice)
+	dottedSlice := getDottedPartedSlice(input)
+	compactedSlice := getCompactedSlice(dottedSlice)
+	checkSum := getCheckSum(compactedSlice)
 
 	fmt.Println(checkSum)
 }
 
-func getCompactedSlice(dottedSlice []string) []int {
-	//! Just copied function, not altered
-	nonDottedSlice := []string{}
-	for _, idChar := range dottedSlice {
-		if idChar == "." {
+func getDottedPartedSlice(input string) [][]string {
+	dottedSlice := [][]string{}
+	isFileblock := true
+	idx := 0
+	for _, char := range input {
+		if char == '0' {
+			isFileblock = !isFileblock
 			continue
 		}
-		nonDottedSlice = append(nonDottedSlice, idChar)
+		valueType := "."
+		if isFileblock {
+			valueType = strconv.Itoa(idx)
+			idx++
+		}
+
+		intChar, _ := strconv.Atoi(string(char))
+		part := []string{}
+		for j := 0; j < intChar; j++ {
+			part = append(part, valueType)
+		}
+
+		dottedSlice = append(dottedSlice, part)
+		isFileblock = !isFileblock
 	}
 
-	leftedSlice := []int{}
-	secondIdx := len(nonDottedSlice) - 1
-	for i, idChar := range dottedSlice {
-		if i == len(nonDottedSlice) {
+	return dottedSlice
+}
+
+func getCompactedSlice(dottedSlice [][]string) []int {
+	compactedSlice := make([][]string, len(dottedSlice))
+	copy(compactedSlice, dottedSlice)
+	
+	for i := len(compactedSlice) - 1; i > 0; i-- {
+		slice := compactedSlice[i]
+		if slice[0] == "." {
+			continue
+		}
+
+		sliceLen := len(slice)
+		for j, dotSlice := range compactedSlice {
+			if i == j {
+				break
+			}
+
+			if sliceLen > len(dotSlice) || dotSlice[0] != "." {
+				continue
+			}
+
+			if sliceLen == len(dotSlice) {
+				compactedSlice[i] = dotSlice
+				compactedSlice[j] = slice
+				break
+			}
+
+			compactedSlice[j] = slice
+			compactedSlice[i] = dotSlice[:sliceLen]
+			remainingDotSlice := dotSlice[sliceLen:]
+			compactedSlice = append(compactedSlice[:j+1], append([][]string{remainingDotSlice}, compactedSlice[j+1:]...)...)
+
+			i++
 			break
 		}
-		if idChar == "." {
-			intValue, _ := strconv.Atoi(nonDottedSlice[secondIdx])
-			leftedSlice = append(leftedSlice, intValue)
-			secondIdx--
-		} else {
-			intValue, _ := strconv.Atoi(idChar)
-			leftedSlice = append(leftedSlice, intValue)
+	}
+
+	compact := []int{}
+	for _, slice := range compactedSlice {
+		for _, value := range slice {
+			intValue, _ := strconv.Atoi(value)
+			compact = append(compact, intValue)
 		}
 	}
-	return leftedSlice
+
+	return compact
 }
