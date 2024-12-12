@@ -13,6 +13,7 @@ func main() {
 	firstVersion(input, 25)
 
 	//* Had to go to Reddit for help on this one :(
+	//* First help needed this year though!
 	secondVersion(input, 25)
 	secondVersion(input, 75)
 }
