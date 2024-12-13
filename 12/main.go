@@ -13,7 +13,7 @@ func main() {
 }
 
 func readInput() []string {
-	content, err := os.ReadFile("mini.txt")
+	content, err := os.ReadFile("input.txt")
 	if err != nil {
 		fmt.Println("Error reading file:", err)
 		return nil
@@ -43,11 +43,9 @@ func findPrice(input []string) {
 
 		sum += regionArea * region.perimeter
 		discountSum += regionArea * region.corners
-
-		fmt.Println(region.letter, ":", region.corners)
 	}
 
-	// fmt.Println("Area * Perimiter sum:", sum)
+	fmt.Println("Area * Perimiter sum:", sum)
 	fmt.Println("Area * Sides sum:", discountSum)
 }
 
@@ -91,12 +89,11 @@ func floodFill(grid []string, letter string, y, x int, visited map[Position]bool
 			neighbours, stack = checkNeighbour(grid, dir, pos, letter, visited, neighbours, stack, &region)
 		}
 
-		corners := 0
 		switch len(neighbours) {
 		case 0:
-			corners += 4
+			region.corners += 4
 		case 1:
-			corners += 2
+			region.corners += 2
 		case 2:
 			posOne := neighbours[0]
 			posTwo := neighbours[1]
@@ -110,37 +107,29 @@ func floodFill(grid []string, letter string, y, x int, visited map[Position]bool
 			newX := (posOne.x + posTwo.x - pos.x)
 			diagonalPos := Position{newY, newX}
 
-			corners += getCornersByDiagonal(diagonalPos, letter, grid) + 1 // since at least one corner
+			region.corners += getCornersByDiagonal(diagonalPos, letter, grid) + 1 // since at least one corner
 		case 3:
-			// Edge case is middle X
-			// XXX
-			// XXO
-			// XXO
+			for i, current := range neighbours {
+				next := neighbours[0]
+				if i < len(neighbours) - 1 {
+					next = neighbours[i+1]
+				}
 
-			// Only check diagonaals on left side because X is there
-			// Right side can't be corners if not X, so don't check there
+				if (current.y == next.y) || (current.x == next.x) {
+					// Opposing neighbours
+					continue
+				}
 
-			// TODO Figure out which diagonals are on the X side
-
-			diagonalDirs := []Position{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}}
-			for _, dir := range diagonalDirs {
-				diagonalPos := Position{pos.y + dir.y, pos.x + dir.x}
-
-				corners += getCornersByDiagonal(diagonalPos, letter, grid)
+				diagonalPos := Position{(current.y + next.y - pos.y), (current.x + next.x - pos.x)}
+				region.corners += getCornersByDiagonal(diagonalPos, letter, grid)
 			}
 		case 4:
 			diagonalDirs := []Position{{1, 1}, {1, -1}, {-1, 1}, {-1, -1}}
 			for _, dir := range diagonalDirs {
 				diagonalPos := Position{pos.y + dir.y, pos.x + dir.x}
 
-				corners += getCornersByDiagonal(diagonalPos, letter, grid)
+				region.corners += getCornersByDiagonal(diagonalPos, letter, grid)
 			}
-		}
-
-		region.corners += corners
-
-		if region.letter == "A" {
-			fmt.Println(region.letter, ":", pos, ":", corners)
 		}
 	}
 
