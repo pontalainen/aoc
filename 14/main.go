@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -12,9 +13,44 @@ func main() {
 
 	gridSize := Position{x: 101, y: 103}
 	positions := getRobotPositions(input, 100, gridSize)
-
 	safetyFactor := getSafetyFactor(positions, gridSize)
 	fmt.Println(safetyFactor)
+
+	treeGrids := [][]string{}
+	blinks := []int{}
+	
+	gridBase := []string{}
+	for i := 0; i < gridSize.y; i++ {
+		gridBase = append(gridBase, strings.Repeat(".", gridSize.x))
+	}
+
+	for i := 0; i < 10000; i++ {
+		grid := make([]string, len(gridBase))
+		copy(grid, gridBase)
+
+		positions := getRobotPositions(input, i, gridSize)
+
+		for _, position := range positions {
+			grid[position.y] = grid[position.y][:position.x] + "#" + grid[position.y][position.x+1:]
+		}
+
+		for _, line := range grid {
+			re := regexp.MustCompile(`########`)
+			if re.MatchString(line) {
+				treeGrids = append(treeGrids, grid)
+				blinks = append(blinks, i)
+			}
+		}
+	}
+
+	for i, treeGrid := range treeGrids {
+		for _, line := range treeGrid {
+			fmt.Println(line)
+		}
+		fmt.Println(blinks[i])
+	}
+
+	fmt.Println(blinks)
 }
 
 func readInput(filename string) []string {
