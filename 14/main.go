@@ -35,7 +35,7 @@ func main() {
 		}
 
 		for _, line := range grid {
-			re := regexp.MustCompile(`########`)
+			re := regexp.MustCompile(`###########`)
 			if re.MatchString(line) {
 				treeGrids = append(treeGrids, grid)
 				blinks = append(blinks, i)
