@@ -39,6 +39,7 @@ func main() {
 			if re.MatchString(line) {
 				treeGrids = append(treeGrids, grid)
 				blinks = append(blinks, i)
+				break
 			}
 		}
 	}
