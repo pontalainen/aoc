@@ -9,13 +9,16 @@ import (
 
 func main() {
 	GRID = readInput("input.txt")
-	y, x := getStartPosition()
+	// fmt.Println(len(GRID))
 
-	scores := getScores(y, x)
+	scores := floodFollow(getStartPosition())
 	// fmt.Println(scores)
 
 	lowestScore := getLowestScore(scores)
 	fmt.Println(lowestScore)
+
+	bestTilesCount := getBestTiles(scores, lowestScore)
+	fmt.Println(bestTilesCount)
 }
 
 type Coord struct {
@@ -46,55 +49,86 @@ func getStartPosition() (int, int) {
 	return -1, -1
 }
 
-func getScores(y, x int) []int {
-	visited := make(map[Coord]bool)
-
-	scores := floodFollow(y, x, 0, visited, 0)
-	return scores
+type state struct {
+	y, x, dir, score int
+	visited []Coord
+}
+type scoreData struct {
+	score int
+	path []Coord
 }
 
-func floodFollow(y, x int, currentDir int, visited map[Coord]bool, currentScore int) []int {
-	pos := GRID[y][x]
-	if pos == 'E' {
-		return []int{currentScore}
-	}
+func floodFollow(y, x int) []scoreData {
+	queue := []state{{y, x, 0, 0, []Coord{{y, x}}}}
+	finalScores := []scoreData{}
+	distance := make(map[Coord]int)
 
-	visited[Coord{y, x}] = true
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
 
-	localVisited := make(map[Coord]bool)
-	for k, v := range visited {
-		localVisited[k] = v
-	}
-
-	finalScores := []int{}
-	for i, dir := range DIRS {
-		dirChange := math.Abs(float64(currentDir - i))
-
-		nextY, nextX := y + dir.y, x + dir.x
-		nextPos := GRID[nextY][nextX]
-
-		if nextPos == '#' || visited[Coord{nextY, nextX}] || dirChange == 2{
+		pos := GRID[current.y][current.x]
+		if pos == 'E' {
+			finalScores = append(finalScores, scoreData{score: current.score, path: current.visited})
 			continue
 		}
 
-		scoreAdd := 1
-		if dirChange != 0 {
-			scoreAdd += 1000
+		currentCoord := Coord{current.y, current.x}
+		if d, found := distance[currentCoord]; !found || d <= current.score {
+			distance[currentCoord] = current.score
+		} else {
+			continue
 		}
-		newScore := currentScore + scoreAdd
 
-		finalScores = append(finalScores, floodFollow(nextY, nextX, i, localVisited, newScore)...)
+		for i, dir := range DIRS {
+			nextY, nextX := current.y + dir.y, current.x + dir.x
+			nextPos := GRID[nextY][nextX]
+			if nextPos == '#' {
+				continue
+			}
+
+			dirChange := math.Abs(float64(current.dir - i))
+			scoreAdd := 1
+			if dirChange != 0 {
+				scoreAdd += 1000
+			}
+			newScore := current.score + scoreAdd
+			newVisited := append([]Coord{}, current.visited...) // Make a copy of visited
+			newVisited = append(newVisited, Coord{nextY, nextX})
+
+			queue = append(queue, state{nextY, nextX, i, newScore, newVisited})
+		}
 	}
 
 	return finalScores
 }
 
-func getLowestScore(scores []int) int {
+func getLowestScore(scores []scoreData) int {
 	minScore := math.MaxInt
 	for _, score := range scores {
-		if score < minScore {
-			minScore = score
+		if score.score < minScore {
+			minScore = score.score
 		}
 	}
 	return minScore
 }
+
+func getBestTiles(scores []scoreData, lowestScore int) int {
+	bestTiles := map[Coord]bool{}
+	count := 0
+	for _, score := range scores {
+		if score.score == lowestScore {
+			count++
+			for _, tile := range score.path {
+				bestTiles[tile] = true
+			}
+		}
+	}
+
+	vari := count
+
+	fmt.Println(vari)
+
+	return len(bestTiles)
+}
+
