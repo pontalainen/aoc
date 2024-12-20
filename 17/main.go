@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// registerA, registerB, registerC, program := readInput("test.txt")
-	executeProgram(readInput("mini.txt"))
+	executeProgram(readInput("input.txt"))
 }
 
 func readInput(filename string) (int, int, int, []int) {
@@ -56,10 +56,17 @@ func executeProgram(registerA, registerB, registerC int, program []int) {
 		outputs = append(outputs, outs...)
 	}
 
-	fmt.Println("A", registerA)
-	fmt.Println("B", registerB)
-	fmt.Println("C", registerC)
-	fmt.Println("outputs", outputs)
+	fmt.Println("A: ", registerA)
+	fmt.Println("B: ", registerB)
+	fmt.Println("C: ", registerC)
+
+	stringsOutputs := []string{}
+	for _, output := range outputs {
+		stringsOutputs = append(stringsOutputs, strconv.Itoa(output))
+	}
+
+	joinedOutput := strings.Join(stringsOutputs, ",")
+	fmt.Println("Output: ", joinedOutput)
 }
 
 func executeInstruction(instruction int, operand int, registerA, registerB, registerC int, i int) (int, int, int, int, []int) {
@@ -69,7 +76,7 @@ func executeInstruction(instruction int, operand int, registerA, registerB, regi
 		comboOperand := getComboOperand(operand, registerA, registerB, registerC)
 		registerA = adv(registerA, comboOperand)
 	case 1:
-		registerB = bxl(registerA, operand)
+		registerB = bxl(registerB, operand)
 	case 2:
 		comboOperand := getComboOperand(operand, registerA, registerB, registerC)
 		registerB = bst(comboOperand)
