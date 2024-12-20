@@ -74,7 +74,9 @@ func floodFollow(y, x int) []scoreData {
 		}
 
 		currentCoord := Coord{current.y, current.x}
-		if prevScore, found := distance[currentCoord]; !found || current.score <= prevScore + 1000 {
+		prevScore, found := distance[currentCoord]
+		// 1000 head room so turns aren't too penalized
+		if !found || current.score <= prevScore + 1000 {
 			distance[currentCoord] = current.score
 		} else {
 			continue
