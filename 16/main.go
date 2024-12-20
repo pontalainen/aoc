@@ -74,7 +74,7 @@ func floodFollow(y, x int) []scoreData {
 		}
 
 		currentCoord := Coord{current.y, current.x}
-		if d, found := distance[currentCoord]; !found || d <= current.score {
+		if prevScore, found := distance[currentCoord]; !found || current.score <= prevScore + 1000 {
 			distance[currentCoord] = current.score
 		} else {
 			continue
@@ -83,11 +83,11 @@ func floodFollow(y, x int) []scoreData {
 		for i, dir := range DIRS {
 			nextY, nextX := current.y + dir.y, current.x + dir.x
 			nextPos := GRID[nextY][nextX]
-			if nextPos == '#' {
+			dirChange := math.Abs(float64(current.dir - i))
+			if nextPos == '#' || dirChange == 2 {
 				continue
 			}
 
-			dirChange := math.Abs(float64(current.dir - i))
 			scoreAdd := 1
 			if dirChange != 0 {
 				scoreAdd += 1000
@@ -125,9 +125,7 @@ func getBestTiles(scores []scoreData, lowestScore int) int {
 		}
 	}
 
-	vari := count
-
-	fmt.Println(vari)
+	fmt.Println(count, len(scores))
 
 	return len(bestTiles)
 }
