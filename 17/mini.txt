@@ -1,5 +1,0 @@
-Register A: 4444
-Register B: 2
-Register C: 5
-
-Program: 4,2

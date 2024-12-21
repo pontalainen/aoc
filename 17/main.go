@@ -9,9 +9,21 @@ import (
 )
 
 func main() {
-	executeProgram(readInput("mini.txt"))
+	registerA, registerB, registerC, program := readInput("input.txt")
+	outputs := executeProgram(registerA, registerB, registerC, program)
 
-	getLowestRegisterA(readInput("mini.txt"))
+	stringsOutputs := []string{}
+	for _, output := range outputs {
+		stringsOutputs = append(stringsOutputs, strconv.Itoa(output))
+	}
+
+	joinedOutput := strings.Join(stringsOutputs, ",")
+	fmt.Println("Output: ", joinedOutput)
+
+	//* I'm not ashamed to admit that I'm not sure why this works, but it does
+	//* The << 3 trick supposedly is the key here, and why I don't really understand
+	lowestRegisterA := getLowestRegisterA(0, registerB, registerC, 1, program)
+	fmt.Println("Lowest Register A:", lowestRegisterA)
 }
 
 func readInput(filename string) (int, int, int, []int) {
@@ -42,7 +54,7 @@ func readInput(filename string) (int, int, int, []int) {
 	return registerA, registerB, registerC, program
 }
 
-func executeProgram(registerA, registerB, registerC int, program []int) string {
+func executeProgram(registerA, registerB, registerC int, program []int) []int {
 	outputs := []int{}
 	for i := 0; i < len(program); i++ {
 		instruction := program[i]
@@ -57,19 +69,9 @@ func executeProgram(registerA, registerB, registerC int, program []int) string {
 		outputs = append(outputs, outs...)
 	}
 
-	fmt.Println("A: ", registerA)
-	fmt.Println("B: ", registerB)
-	fmt.Println("C: ", registerC)
+	// fmt.Println("Outputs: ", outputs)
 
-	stringsOutputs := []string{}
-	for _, output := range outputs {
-		stringsOutputs = append(stringsOutputs, strconv.Itoa(output))
-	}
-
-	joinedOutput := strings.Join(stringsOutputs, ",")
-	fmt.Println("Output: ", joinedOutput)
-
-	return joinedOutput
+	return outputs
 }
 
 func executeInstruction(instruction int, operand int, registerA, registerB, registerC int, i int) (int, int, int, int, []int) {
@@ -143,6 +145,45 @@ func bxc(regB, regC int) int {
 	return regB ^ regC
 }
 
-func getLowestRegisterA(registerA, registerB, registerC int, program []int) int {
-	return 1
+func getLowestRegisterA(regA, regB, regC int, compareIndex int, program []int) int {
+    result := make(map[int]bool)
+    var smallest int = -1
+
+    for n := 0; n < 8; n++ {
+        A2 := (regA << 3) | n
+        output := executeProgram(A2, regB, regC, program)
+        if compareOutputs(output, program[len(program)-compareIndex:]) {
+            if compareOutputs(output, program) {
+                result[A2] = true
+            } else {
+                possible := getLowestRegisterA(A2, regB, regC, compareIndex+1, program)
+                if possible != 0 {
+                    result[possible] = true
+                }
+            }
+        }
+    }
+
+    for key := range result {
+        if smallest == -1 || key < smallest {
+            smallest = key
+        }
+    }
+
+    if smallest == -1 {
+        return 0
+    }
+    return smallest
+}
+
+func compareOutputs(output, target []int) bool {
+    if len(output) != len(target) {
+        return false
+    }
+    for i := range output {
+        if output[i] != target[i] {
+            return false
+        }
+    }
+    return true
 }
