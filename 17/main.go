@@ -9,8 +9,9 @@ import (
 )
 
 func main() {
-	// registerA, registerB, registerC, program := readInput("test.txt")
-	executeProgram(readInput("input.txt"))
+	executeProgram(readInput("mini.txt"))
+
+	getLowestRegisterA(readInput("mini.txt"))
 }
 
 func readInput(filename string) (int, int, int, []int) {
@@ -41,7 +42,7 @@ func readInput(filename string) (int, int, int, []int) {
 	return registerA, registerB, registerC, program
 }
 
-func executeProgram(registerA, registerB, registerC int, program []int) {
+func executeProgram(registerA, registerB, registerC int, program []int) string {
 	outputs := []int{}
 	for i := 0; i < len(program); i++ {
 		instruction := program[i]
@@ -67,6 +68,8 @@ func executeProgram(registerA, registerB, registerC int, program []int) {
 
 	joinedOutput := strings.Join(stringsOutputs, ",")
 	fmt.Println("Output: ", joinedOutput)
+
+	return joinedOutput
 }
 
 func executeInstruction(instruction int, operand int, registerA, registerB, registerC int, i int) (int, int, int, int, []int) {
@@ -110,8 +113,6 @@ func getComboOperand(literal int, a, b, c int) int {
 		return b
 	case 6:
 		return c
-	// case 7:
-	// 	return a
 	}
 
 	return 0
@@ -138,6 +139,10 @@ func jnz(regA, operand, i int) int {
 	return i
 }
 
-func bxc(regA, regB int) int {
-	return regA ^ regB
+func bxc(regB, regC int) int {
+	return regB ^ regC
+}
+
+func getLowestRegisterA(registerA, registerB, registerC int, program []int) int {
+	return 1
 }
